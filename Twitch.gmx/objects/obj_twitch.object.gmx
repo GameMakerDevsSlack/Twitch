@@ -74,7 +74,7 @@
         //Set the RELEASE macro to "true" when you want to build for other people to use
         //Make sure to drop a directory containing the Chromium browser (and dependencies) into your .zip file
         CEF_path = CEF_RELEASE_PATH;
-        CEF_game_filename = game_project_name + ".exe";
+        CEF_game_filename = game_project_name;
     }
     
     

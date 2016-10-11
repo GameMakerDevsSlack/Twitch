@@ -27,7 +27,7 @@
     <room>rooms\rm_test</room>
   </rooms>
   <constants number="5">
-    <constant name="RELEASE">0</constant>
+    <constant name="RELEASE">true</constant>
     <constant name="CEF_EXE_NAME">"GameMaker_Chromium51.exe"</constant>
     <constant name="CEF_DEBUG_PATH">"D:\GameMakerDevsSlack Source Control\Twitch\Twitch.gmx\GameMaker_Chromium51\" + CEF_EXE_NAME</constant>
     <constant name="CEF_RELEASE_PATH">program_directory + "\GameMaker_Chromium51\" + CEF_EXE_NAME</constant>
