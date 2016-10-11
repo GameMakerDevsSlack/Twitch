@@ -47,7 +47,7 @@
     
     //To find/create your client ID and client secret, visit twitch.tv/settings/connections and register your application
     twitch_client_id = "626x6p6t09tiqcd11d5fk182wq4yfuq";
-    twitch_client_secret = "kmov55hnw5avwgw5njygv3zhosgmpiu";
+    twitch_client_secret = "motmqrg4kvun7hnsrdq1qugkiofducr";
     
     //Set the scope of the authorisation. Check out github.com/justintv/Twitch-API/blob/master/authentication.md for more information
     twitch_scope = "user_read";
@@ -91,11 +91,11 @@ twitch_listen_server = network_create_server_raw( network_socket_tcp, real( twit
 network_set_timeout( twitch_listen_server, 120000, 120000 );
 
 //Direct the user to Twitch to authorise this application
-var _url = "https://api.twitch.tv/kraken/oauth2/authorize";
-_url += "?response_type=code";
-_url += "&amp;client_id=" + twitch_client_id;
-_url += "&amp;redirect_uri=" + scr_ggeisha_url_encode( "http://localhost:" + string( twitch_listen_port ) );
-_url += "&amp;scope=" + twitch_scope;
+var _url  = "https://api.twitch.tv/kraken/oauth2/authorize";
+    _url += "?response_type=code";
+    _url += "&amp;client_id=" + twitch_client_id;
+    _url += "&amp;redirect_uri=" + scr_ggeisha_url_encode( "http://localhost:" + string( twitch_listen_port ) );
+    _url += "&amp;scope=" + twitch_scope;
 
 scr_cef_start( CEF_path, _url, CEF_game_filename );
 </string>
@@ -173,10 +173,10 @@ network_destroy( twitch_listen_server );
             <kind>1</kind>
             <string>///Alarm 0
 
-var size = ds_list_size( twitch_sockets );
-for( var i = 0; i &lt; size; i++ ) {
-    var socket = ds_list_find_value( twitch_sockets, i );
-    network_destroy( socket );
+var _size = ds_list_size( twitch_sockets );
+for( var _i = 0; _i &lt; _size; _i++ ) {
+    var _socket = ds_list_find_value( twitch_sockets, _i );
+    network_destroy( _socket );
 }
 </string>
           </argument>
@@ -227,14 +227,13 @@ if ( keyboard_check_pressed( vk_escape ) ) scr_cef_kill();
             <kind>1</kind>
             <string>///Networking Async
 
-var ID     = ds_map_find_value( async_load, "id" );
-var type   = ds_map_find_value( async_load, "type" );
-var buffer = ds_map_find_value( async_load, "buffer" );
+var _type   = ds_map_find_value( async_load, "type" );
+var _buffer = ds_map_find_value( async_load, "buffer" );
 
 if ( twitch_listen_state == 0 ) {
     
     //Catch connecting sockets
-    if ( type == network_type_connect ) {
+    if ( _type == network_type_connect ) {
         
         var socket = ds_map_find_value( async_load, "socket" );
         //var ip = ds_map_find_value( async_load, "ip" );
@@ -246,41 +245,41 @@ if ( twitch_listen_state == 0 ) {
     }
 
     //Catch the authorisation response from Twitch
-    if ( !is_undefined( buffer ) ) {
+    if ( !is_undefined( _buffer ) ) {
         
         //Grab the plaintext from the HTTP response
-        var str = buffer_read( buffer, buffer_text );
+        var _str = buffer_read( _buffer, buffer_text );
         
         //Find two key points - the code parameter and everything thereafter until the HTTP version definition (this should catch the "scope" parameter as well)
-        var a = string_pos( "code=", str );
-        var b = string_pos( " HTTP", str );
-        var str = string_copy( str, a + 5, b - a - 5 );
+        var _a = string_pos( "code=", _str );
+        var _b = string_pos( " HTTP", _str );
+        _str = string_copy( _str, _a + 5, _b - _a - 5 );
         
         //Divvy up the parameter string
-        var ampersand = string_pos( "&amp;", str );
-        code = string_copy( str, 1, ampersand - 1 );
-        var scope = string_delete( str, 1, ampersand );
+        var _ampersand = string_pos( "&amp;", _str );
+        var _code = string_copy( _str, 1, _ampersand - 1 );
+        var _scope = string_delete( _str, 1, _ampersand );
         
         //Report an error if the scope is not what we were expecting
-        if ( scope != "scope=" + twitch_scope ) show_debug_message( "Malformed scope? &gt;" + str + "&lt;" );
+        if ( _scope != "scope=" + twitch_scope ) show_debug_message( "Malformed scope? &gt;" + _str + "&lt;" );
         
         //Immediately send off an HTTP POST using this request token to Twitch
-        var body = "client_id=" + twitch_client_id;
-        body += "&amp;client_secret=" + twitch_client_secret;
-        body += "&amp;grant_type=authorization_code";
-        body += "&amp;redirect_uri=" + scr_ggeisha_url_encode( "http://localhost:" + string( twitch_listen_port ) );
-        body += "&amp;code=" + code;
-        var map = ds_map_create();
-        twitch_access_request = http_request( "https://api.twitch.tv/kraken/oauth2/token", "POST", map, body );
-        ds_map_destroy( map );
+        var _body = "client_id=" + twitch_client_id;
+        _body += "&amp;client_secret=" + twitch_client_secret;
+        _body += "&amp;grant_type=authorization_code";
+        _body += "&amp;redirect_uri=" + scr_ggeisha_url_encode( "http://localhost:" + string( twitch_listen_port ) );
+        _body += "&amp;code=" + _code;
+        var _map = ds_map_create();
+        twitch_access_request = http_request( "https://api.twitch.tv/kraken/oauth2/token", "POST", _map, _body );
+        ds_map_destroy( _map );
         
         //Also send an HTTP reponse to the browser to redirect it to a proper web page
-        var firstSocket = ds_list_find_value( twitch_sockets, 0 );
-        var response = "HTTP/1.1 302 Found " + chr(10) + chr(13) + "Location: " + twitch_redirect;
-        var sendBuffer = buffer_create( string_length( response ), buffer_fixed, 1 );
-        buffer_write( sendBuffer, buffer_text, response );
-        network_send_raw( firstSocket, sendBuffer, buffer_tell( sendBuffer ) );
-        buffer_delete( sendBuffer );
+        var _first_socket = ds_list_find_value( twitch_sockets, 0 );
+        var _response = "HTTP/1.1 302 Found " + chr(10) + chr(13) + "Location: " + twitch_redirect;
+        var _send_buffer = buffer_create( string_length( _response ), buffer_fixed, 1 );
+        buffer_write( _send_buffer, buffer_text, _response );
+        network_send_raw( _first_socket, _send_buffer, buffer_tell( _send_buffer ) );
+        buffer_delete( _send_buffer );
         
         //Set the server and all sockets to be closed
         alarm[0] = 1;
@@ -288,8 +287,6 @@ if ( twitch_listen_state == 0 ) {
         
         //Make sure we don't revisit this step
         twitch_listen_state = 1;
-        
-        scr_cef_kill();
         
     }
 }
@@ -319,26 +316,28 @@ if ( twitch_listen_state == 0 ) {
 //Simple snippet to catch the incoming token data from Twitch.
 //Add your own error checking!
 
-var ID          = ds_map_find_value( async_load, "id" );
-var status      = ds_map_find_value( async_load, "status" );
-var result      = ds_map_find_value( async_load, "result" );
-var url         = ds_map_find_value( async_load, "url" );
-var http_status = ds_map_find_value( async_load, "http_status" );
+var _id          = ds_map_find_value( async_load, "id" );
+var _status      = ds_map_find_value( async_load, "status" );
+var _result      = ds_map_find_value( async_load, "result" );
+var _url         = ds_map_find_value( async_load, "url" );
+var _http_status = ds_map_find_value( async_load, "http_status" );
 
-if ( ID == twitch_access_request ) {
-    if ( !is_undefined( result ) ) {
+if ( _id == twitch_access_request ) {
+    if ( !is_undefined( _result ) ) {
         
-        var json = json_decode( result );
-        twitch_access_token = ds_map_find_value( json, "access_token" );
-        twitch_refresh_token = ds_map_find_value( json, "refresh_token" );
-        ds_map_destroy( json );
+        var _json = json_decode( _result );
+        twitch_access_token = ds_map_find_value( _json, "access_token" );
+        twitch_refresh_token = ds_map_find_value( _json, "refresh_token" );
+        ds_map_destroy( _json );
+        
+        scr_cef_kill();
         
         if ( is_undefined( twitch_access_token ) ) or ( is_undefined( twitch_refresh_token ) ) {
-            show_message( "Error!#" + result );
+            //show_message( "Error!#" + _result );
         }
         
     } else {
-        show_message( "Error!#" + string( status ) + " / " + string( http_status ) + "#" + string( result ) );
+        //show_message( "Error!#" + string( _status ) + " / " + string( _http_status ) + "#" + string( _result ) );
     }
 }
 </string>
@@ -365,7 +364,7 @@ if ( ID == twitch_access_request ) {
             <kind>1</kind>
             <string>///Draw
 
-draw_text( 5, 5, "Access Token = " + string( twitch_access_token ) + "#Request Token = " + string( twitch_refresh_token ) );
+draw_text( 5, 5, "Access Token#" + string( twitch_access_token ) + "##Request Token#" + string( twitch_refresh_token ) );
 </string>
           </argument>
         </arguments>

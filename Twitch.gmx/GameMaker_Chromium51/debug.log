@@ -19,3 +19,4 @@
 [1011/103313:ERROR:ipc_channel_win.cc(217)] pipe error: 109
 [1011/123805:ERROR:ipc_channel_win.cc(217)] pipe error: 109
 [1011/101018:ERROR:ipc_channel_win.cc(217)] pipe error: 109
+[1011/105040:ERROR:ipc_channel_win.cc(519)] pipe error: 232
